@@ -1,0 +1,10 @@
+cd Documents/Java/CoronaCity/src
+
+
+javac org/etf/coronacity/main/*.java
+javac org/etf/coronacity/gui/*.java
+
+java -Dfile.encoding=UTF-8 org.etf.coronacity.main.Main
+
+// change cmd encoding
+chcp 65001

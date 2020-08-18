@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2020-08-08T16:05:55.574575600Z</date>
+  <millis>1596902755574</millis>
+  <nanos>575600</nanos>
+  <sequence>0</sequence>
+  <logger>org.etf.coronacity.service.movement.AmbulanceMovementThread</logger>
+  <level>WARNING</level>
+  <class>org.etf.coronacity.helper.Utils</class>
+  <method>createLoggerHandler</method>
+  <thread>18</thread>
+  <message>java.io.IOException: Couldn't get lock for ./res/logs/logs.log</message>
+</record>
+<record>
+  <date>2020-08-08T16:05:55.885944700Z</date>
+  <millis>1596902755885</millis>
+  <nanos>944700</nanos>
+  <sequence>1</sequence>
+  <logger>org.etf.coronacity.service.movement.AmbulanceMovementThread</logger>
+  <level>WARNING</level>
+  <class>org.etf.coronacity.helper.Utils</class>
+  <method>createLoggerHandler</method>
+  <thread>18</thread>
+  <message>java.io.IOException: Couldn't get lock for ./res/logs/logs.log</message>
+</record>
+</log>

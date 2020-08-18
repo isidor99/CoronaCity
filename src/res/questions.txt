@@ -1,0 +1,14 @@
+1.
+Ako se na primjer na matrici grada nadju dvije kuce koje su na manjem rastojanju od 2 polja u tom slucaju ako se ukucani
+rasporede u kuce i oni ce se u pocetku naci na manjem rastojanju. Da li je ovo dozvoljeno?
+
+2.
+Ako neko prolazi pored pozicije kuce u kojoj se nalaze ljdui, da li se podrazumijeva da je zid dovoljno dobar izloator
+odnosno da li je dozvoljeno da neko prodje pored necije kuce ako se u toj kuci nalaze ukucani?
+
+3.
+Da li osoba koja je jednom izlijecena moze ponovo da se zarazi?
+
+4.
+Da li osoba koja se nalazi u kuci moze da se zarazi tj. da li se mjenja temperatura osoba koje su u kuci, dok je npr.
+neki od ukucana u bolnici?
