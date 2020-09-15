@@ -6,6 +6,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/*
+ * Component that represents stepped graph
+ * This class has one constructor which expects three values
+ *      ArrayList<Long> - values that go on the x axis
+ *      ArrayList<Long> - values that go on the y axis
+ *      String - string which is code of color for the graph
+ */
 public class GraphView extends JComponent {
 
     private ArrayList<Long> xValues;
@@ -15,7 +22,6 @@ public class GraphView extends JComponent {
     private static final int PADDING = 8;
     private static final int LABEL_PADDING = 16;
     private static final int POINT_WIDTH = 6;
-    private static final int Y_DIVISIONS = 10;
     private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
 
     public GraphView(ArrayList<Long> xValues, ArrayList<Long> yValues, String color) {

@@ -6,6 +6,10 @@ import org.etf.coronacity.model.building.Hospital;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+/*
+    This class keeps truck of ambulance movement
+    When simulation is stopped, data about ambulance movement needs to be serialized
+ */
 public class AmbulanceMovementData implements Serializable {
 
     private long ambulanceId;

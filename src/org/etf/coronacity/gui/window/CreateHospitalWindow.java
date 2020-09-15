@@ -1,6 +1,7 @@
 package org.etf.coronacity.gui.window;
 
 import org.etf.coronacity.helper.Constants;
+import org.etf.coronacity.helper.Dimensions;
 import org.etf.coronacity.helper.Utils;
 import org.etf.coronacity.model.building.Hospital;
 
@@ -8,6 +9,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/*
+    Creating new hospital
+ */
 public class CreateHospitalWindow extends JFrame {
 
     private JTextField nameTextField;
@@ -15,6 +19,8 @@ public class CreateHospitalWindow extends JFrame {
     private int residents;
 
     private Consumer<Hospital> hospitalCreateListener;
+
+    private static final String TITLE = "Nova bolnica";
 
     private static final String TEXT_LABEL_WINDOW = "Kreiranje nove bolnice";
     private static final String TEXT_LABEL_NAME = "Ime bolnice";
@@ -38,6 +44,10 @@ public class CreateHospitalWindow extends JFrame {
     //
     // private
     //
+
+    /**
+     * All components and layout manager are created here and set properly
+     */
     private void initComponents() {
 
         // using GroupLayout
@@ -53,7 +63,7 @@ public class CreateHospitalWindow extends JFrame {
         //
 
         JLabel windowLabel = new JLabel(TEXT_LABEL_WINDOW);
-        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Constants.DIMENSION_TITLE_FONT_SIZE));
+        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Dimensions.TITLE_FONT_SIZE));
 
         JLabel nameLabel = new JLabel(TEXT_LABEL_NAME);
 
@@ -68,7 +78,7 @@ public class CreateHospitalWindow extends JFrame {
                         .addComponent(windowLabel)
                         .addGroup(groupLayout.createSequentialGroup()
                                 .addComponent(nameLabel)
-                                .addComponent(nameTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
+                                .addComponent(nameTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
                         )
                         .addComponent(createButton)
         );
@@ -84,12 +94,16 @@ public class CreateHospitalWindow extends JFrame {
                         .addComponent(createButton)
         );
 
+        setTitle(TITLE);
         pack();
         setVisible(true);
         setResizable(false);
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Add action listeners for option buttons
+     */
     private void setListeners() {
 
         createButton.addActionListener(event -> {

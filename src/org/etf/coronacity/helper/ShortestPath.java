@@ -6,8 +6,14 @@ import org.etf.coronacity.model.building.Home;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+/*
+    This is helper class
+    This class represents shortest path (and contains method for determination that shortest path)
+    from one position to another in matrix
+ */
 public class ShortestPath implements Serializable {
 
+    // inner class that represents path element
     public static class Node implements Serializable {
 
         int x;
@@ -43,6 +49,13 @@ public class ShortestPath implements Serializable {
         }
     }
 
+    /**
+     * Find the shortest path from one position to another
+     * @param matrix two dimensional array that represents matrix
+     * @param start start position
+     * @param end end position
+     * @return LinkedLint<Node> path
+     */
     public static LinkedList<Node> shortestPath(Object[][] matrix, LocationData start, LocationData end) {
 
         // both persons and ambulances can move across the fields where
@@ -107,6 +120,16 @@ public class ShortestPath implements Serializable {
         return path;
     }
 
+    //
+
+    /**
+     * Visit next node if possible
+     * @param nodes all nodes
+     * @param queue nodes that needs to be visited
+     * @param x position x
+     * @param y position y
+     * @param parent parent node
+     */
     private static void visit(Node[][] nodes, LinkedList<Node> queue, int x, int y, Node parent) {
 
         if (x < 0 || x > nodes.length - 1 || y < 0 || y > nodes.length - 1 || nodes[x][y] == null)

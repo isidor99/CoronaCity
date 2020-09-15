@@ -2,6 +2,16 @@ package org.etf.coronacity.gui.model;
 
 import javax.swing.table.AbstractTableModel;
 
+/*
+ * Model for table
+ * Contains public constants which represents number of columns for tables with data connected with
+ *      infected, recovered and persons in hospital
+ * This class has one constructor which expects two arguments
+ *      Object[][] - two dimensional array which contains data
+ *      String[] - one dimensional array which contains column names
+ * Second dimension of the first argument and size of the second argument
+ *      must be the same and must be equals to number of columns
+ */
 public class DataTableModel extends AbstractTableModel {
 
     private Object[][] data;

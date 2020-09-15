@@ -36,6 +36,6 @@ public class Ambulance implements Serializable {
 
     @Override
     public String toString() {
-        return getId() + ", Ambulance, " + getPositionX() + ", " + getPositionY() + ", " + "\n";
+        return getId() + ", Ambulance, " + (getPositionX() + 1) + ", " + (getPositionY() + 1) + ", " + "\n";
     }
 }

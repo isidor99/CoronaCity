@@ -4,6 +4,9 @@ import org.etf.coronacity.model.building.Hospital;
 
 import javax.swing.*;
 
+/*
+ * Components that represents view with data relevant to the hospital
+ */
 public class HospitalView extends JComponent {
 
     private Hospital hospital;
@@ -24,7 +27,11 @@ public class HospitalView extends JComponent {
 
     //
     // private
-    //
+
+
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents() {
 
         // using GroupLayout

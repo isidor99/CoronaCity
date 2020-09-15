@@ -8,6 +8,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/*
+ * This class is JPanel for JTabbedPane in StatisticsWindow.java class
+ * Contains three graph components (GraphView.java class) arranged horizontally
+ * Graphs contains data for children, adults and old respectively
+ */
 public class AgeGraphTab extends JPanel {
 
     private static final String TEXT_LABEL_CHILD = "Djeca";
@@ -20,8 +25,10 @@ public class AgeGraphTab extends JPanel {
 
     //
     // private
-    //
 
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents(ArrayList<Long> xValues, ArrayList<Long> yValuesChild, ArrayList<Long> yValuesAdult, ArrayList<Long> yValuesOld, boolean infected) {
 
         // using GroupLayout

@@ -27,7 +27,9 @@ public class TemperatureTimerTask extends TimerTask {
         temperatureUpdateListener.onTemperatureUpdated();
     }
 
-
+    /**
+     * Every 30 seconds calculate new temperature for each person
+     */
     private synchronized void calculateTemperature() {
 
         Random random = new Random();

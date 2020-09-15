@@ -6,6 +6,7 @@ import org.etf.coronacity.gui.tab.GenderGraphTab;
 import org.etf.coronacity.gui.tab.HospitalTab;
 import org.etf.coronacity.gui.tab.TableTab;
 import org.etf.coronacity.helper.Constants;
+import org.etf.coronacity.helper.Dimensions;
 import org.etf.coronacity.helper.TableNames;
 import org.etf.coronacity.helper.Utils;
 import org.etf.coronacity.model.carrier.AppData;
@@ -24,6 +25,11 @@ import java.util.Collections;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/*
+    Show statistics to use
+    This window contains tabs with tables and graph with statistics
+    Statistics can be downloaded as .csv file
+ */
 public class StatisticsWindow extends JFrame {
 
     private static final Logger LOGGER = Logger.getLogger(StatisticsWindow.class.getName());
@@ -36,11 +42,11 @@ public class StatisticsWindow extends JFrame {
     private JButton downloadCsvButton;
     private TableTab infectedTab, currentlyInfected, recoveredTab;
 
-    private static final String TEXT_LABEL_WINDOW = "Statistika";
+    private static final String TEXT_LABEL_WINDOW = "Statisticki podaci";
 
     private static final String BUTTON_NAME_DOWNLOAD_CSV = "Preuzmi CSV";
 
-    private static final String TITLE = "Statisticki podaci";
+    private static final String TITLE = "Statistika";
 
     // tabs title
     private static final String TAB_INFECTED_TITLE = "Zarazeni";
@@ -70,13 +76,18 @@ public class StatisticsWindow extends JFrame {
     //
     // private
     //
+
+    /**
+     * All data are stored in file as object of type Data
+     * Read that data
+     */
     private void readFileData() {
 
         try {
 
             ObjectInputStream inputStream =
                     new ObjectInputStream(new FileInputStream(
-                            new File(Constants.FILE_PATH_FIRST_AID_DATA + Constants.DATA_FILE_NAME)
+                            new File(Constants.FILE_PATH_DATA + Constants.DATA_FILE_NAME)
                     ));
 
             data = (Data) inputStream.readObject();
@@ -89,6 +100,9 @@ public class StatisticsWindow extends JFrame {
 
     }
 
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents() {
 
         // using GroupLayout
@@ -104,7 +118,7 @@ public class StatisticsWindow extends JFrame {
         //
 
         JLabel windowLabel = new JLabel(TEXT_LABEL_WINDOW);
-        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Constants.DIMENSION_TITLE_FONT_SIZE));
+        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Dimensions.TITLE_FONT_SIZE));
 
         containerTabbedPane = new JTabbedPane();
 
@@ -117,7 +131,7 @@ public class StatisticsWindow extends JFrame {
                 groupLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
                         .addComponent(windowLabel)
                         .addComponent(containerTabbedPane)
-                        .addComponent(downloadCsvButton)
+                        .addComponent(downloadCsvButton, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
         );
 
         // vertical group
@@ -136,6 +150,9 @@ public class StatisticsWindow extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Add action listeners for option buttons
+     */
     private void setListeners() {
 
         downloadCsvButton.addActionListener(e -> {
@@ -147,6 +164,9 @@ public class StatisticsWindow extends JFrame {
         });
     }
 
+    /**
+     * Create tabs and add them to JTabbedPane
+     */
     private void setTabs() {
 
         // first tab
@@ -167,10 +187,6 @@ public class StatisticsWindow extends JFrame {
 
         HospitalTab hospitalTab = new HospitalTab(appData.getHospitals());
 
-        // forth tab
-        //AgeGraphTab ageGraphTab = createAgeGraphTab();
-
-
         containerTabbedPane.addTab(TAB_INFECTED_TITLE, infectedTab);
         containerTabbedPane.addTab(TAB_CURRENTLY_INFECTED_TITLE, currentlyInfected);
         containerTabbedPane.addTab(TAB_RECOVERED_TITLE, recoveredTab);
@@ -181,7 +197,11 @@ public class StatisticsWindow extends JFrame {
         containerTabbedPane.addTab(TAB_HOSPITALS_TITLE, hospitalTab);
     }
 
-
+    /**
+     * Create TableTab
+     * This tab contains table that contains data about all infected persons
+     * @return object of type TableTab (TableTab is JPanel)
+     */
     private TableTab createInfectedTableTab() {
 
         ArrayList<Person> persons = (ArrayList<Person>)
@@ -214,6 +234,11 @@ public class StatisticsWindow extends JFrame {
         return new TableTab(new DataTableModel(data, columnNames));
     }
 
+    /**
+     * Create TableTab
+     * This tab contains table that contains data about currently infected persons
+     * @return object of type TableTab (TableTab is JPanel)
+     */
     private TableTab createCurrentlyInfectedTab() {
 
         ArrayList<Person> persons =
@@ -243,6 +268,11 @@ public class StatisticsWindow extends JFrame {
         return new TableTab(new DataTableModel(data, columnNames));
     }
 
+    /**
+     * Create TableTab
+     * This tab contains table that contains data about recovered persons
+     * @return object of type TableTab (TableTab is JPanel)
+     */
     private TableTab createRecoveredTableTab() {
 
         ArrayList<Person> persons = (ArrayList<Person>)
@@ -275,6 +305,12 @@ public class StatisticsWindow extends JFrame {
         return new TableTab(new DataTableModel(data, columnNames));
     }
 
+    /**
+     * Create GenderGraphTab
+     * This tab contains two GraphView components with data about the infected male and female persons
+     * @param infected indicates whether the data is about infected or recovered
+     * @return object of type GenderGraphTab
+     */
     private GenderGraphTab createGenderGraphTab(boolean infected) {
 
         ArrayList<Long> keys = new ArrayList<>(data.getMeasurementAtTime().keySet());
@@ -323,6 +359,12 @@ public class StatisticsWindow extends JFrame {
         }
     }
 
+    /**
+     * Create AgeGraphTab
+     * This tab contains three GraphView components with data about the infected children, adults and old persons
+     * @param infected indicates whether the data is about infected or recovered
+     * @return object of type AgeGraphTab
+     */
     private AgeGraphTab createAgeGraph(boolean infected) {
 
         ArrayList<Long> keys = new ArrayList<>(data.getMeasurementAtTime().keySet());
@@ -379,6 +421,12 @@ public class StatisticsWindow extends JFrame {
         }
     }
 
+    /**
+     * Create table row
+     * @param num serial number
+     * @param person data source
+     * @return data represented as array of objects (Object[])
+     */
     private Object[] createRow(int num, Person person) {
 
         Object[] row = new Object[DataTableModel.INFECTED_COLUMNS];
@@ -390,8 +438,8 @@ public class StatisticsWindow extends JFrame {
         row[4] = person.getBirthYear();
         row[5] = person.getGender() == Person.Gender.MALE ? TEXT_GENDER_MALE : TEXT_GENDER_FEMALE;
         row[6] = String.format("%.2f", person.getBodyTemperature());
-        row[7] = "(" + appData.getBuildings().get(person.getHomeId()).getPositionX() + ", " +
-                appData.getBuildings().get(person.getHomeId()).getPositionY() + ")";
+        row[7] = "(" + (appData.getBuildings().get(person.getHomeId()).getPositionX() + 1) + ", " +
+                (appData.getBuildings().get(person.getHomeId()).getPositionY() + 1) + ")";
         row[8] = ((Home) appData.getBuildings().get(person.getHomeId())).getHosts() - 1;
 
         return row;

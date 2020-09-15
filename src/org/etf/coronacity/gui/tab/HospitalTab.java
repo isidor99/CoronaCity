@@ -11,6 +11,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+/*
+ * This class is JPanel for JTabbedPane in StatisticsWindow.java class
+ * Contains JTabbedPanel with tabs for each hospital
+ * Each tab contains JTable for that hospital with data for persons which are in that hospital
+ */
+
 public class HospitalTab extends JPanel {
 
     private ArrayList<Hospital> hospitals;
@@ -27,7 +33,10 @@ public class HospitalTab extends JPanel {
 
     //
     // private
-    //
+
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents() {
 
         setLayout(new GridLayout(1, 1));
@@ -61,6 +70,13 @@ public class HospitalTab extends JPanel {
         add(containerTabbedPane);
     }
 
+    /**
+     * Create one row in table
+     * @param num record ordinal number
+     * @param person person for which data need to be shown
+     * @param hospital hospital for which table is created
+     * @return Object[] an array of objects which represents data for columns
+     */
     private Object[] createRow(int num, Person person, Hospital hospital) {
 
         Object[] row = new Object[DataTableModel.HOSPITAL_PERSON_COLUMNS];
@@ -78,6 +94,11 @@ public class HospitalTab extends JPanel {
         return row;
     }
 
+    /**
+     * Format given temperatures in String with two decimal places
+     * @param temperatures list of temperature that needs to be formatted
+     * @return String temperatures with two decimal places separated with ;
+     */
     private String temperaturesToString(LinkedList<Double> temperatures) {
 
         StringBuilder stringBuilder = new StringBuilder();

@@ -12,10 +12,11 @@ import org.etf.coronacity.model.person.Person;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/*
+    Thread that measures temperatures
+ */
 public class MeasurementThread extends Thread {
 
-    //private ArrayList<Checkpoint> checkpoints;
-    //private HashMap<Long, Person> persons;
     private AppData appData;
     private CheckpointMeasurementListener checkpointMeasurementListener;
 
@@ -33,12 +34,23 @@ public class MeasurementThread extends Thread {
         measure();
     }
 
+    /**
+     * Stop thread
+     */
     public void stopRunning() {
         this.isRunning = false;
     }
 
     //
     //
+
+    /**
+     * Loop through checkpoints
+     * Find persons near that checkpoint
+     * Check that person temperature
+     * If temperature is greater that 37 then that person is infected
+     * If person is infected, stop that person and notify other persons from the same house to go home
+     */
     private void measure() {
 
         ArrayList<Checkpoint> checkpoints = Utils.getCheckpoints(appData.getBuildings());
@@ -67,6 +79,12 @@ public class MeasurementThread extends Thread {
         }
     }
 
+    /**
+     * Find persons on positions near checkpoint
+     * @param posX checkpoint's position x
+     * @param posY checkpoint's position y
+     * @return persons that are near the given position
+     */
     private ArrayList<Person> getPersonsNearCheckpoint(int posX, int posY) {
 
         return (ArrayList<Person>)
@@ -75,6 +93,13 @@ public class MeasurementThread extends Thread {
                         .collect(Collectors.toList());
     }
 
+    /**
+     * Check if person is new the given position
+     * @param posX position x
+     * @param posY position y
+     * @param locationData person's location data
+     * @return true if person is near, otherwise false
+     */
     private boolean isNear(int posX, int posY, LocationData locationData) {
 
         for (int i = posX - 1; i <= posX + 1; i++)

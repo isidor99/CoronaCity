@@ -1,5 +1,9 @@
 package org.etf.coronacity.helper;
 
+/*
+    This is helper class
+    Contains various constant values used in the application
+ */
 public class Constants {
 
     // file paths
@@ -8,12 +12,10 @@ public class Constants {
     public static final String FILE_PATH_SURNAMES = "./res/surnames.txt";
     public static final String FILE_PATH_HOSPITAL_NAMES = "./res/hospital_names.txt";
     public static final String FILE_PATH_STATISTICS = "./res/stats.csv";
-
     public static final String FILE_PATH_LOG_FILE = "./res/logs/logs.log";
-
-    public static final String FILE_PATH_FIRST_AID_DATA = "./res/first_aid/";
-
+    public static final String FILE_PATH_DATA = "./res/data/";
     public static final String FILE_PATH_SIMULATION_DATA = "./res/simulation_data/";
+    public static final String FILE_PATH_SERIALIZATION_DATA = "./res/serialization/data.jcs"; // java cov simulation
 
     public static final String DATA_FILE_NAME = "data.fad";
 
@@ -23,9 +25,6 @@ public class Constants {
     public static final String STATISTICS_FILE_CURRENTLY_INFECTED_CSV = "./res/stats/currently_infected.csv";
     public static final String STATISTICS_FILE_RECOVERED_CSV = "./res/stats/recovered.csv";
 
-    public static final String FILE_PATH_SERIALIZATION_DATA = "./res/serialization/data.jcs"; // java cov simulation
-
-
     // Ages
     public static final int AGE_CHILD_LOW = 0;
     public static final int AGE_CHILD_HIGH = 17;
@@ -34,10 +33,6 @@ public class Constants {
     public static final int AGE_OLD_LOW = 65;
     public static final int AGE_OLD_HIGH = 100;
 
-    // Types
-    public static final int TYPE_CHILD = 0x3342;
-    public static final int TYPE_ADULT = 0x3422;
-    public static final int TYPE_OLD = 0x9945;
 
     // Temperature
     public static final double TEMPERATURE_LOWEST = 35.0;
@@ -48,7 +43,6 @@ public class Constants {
     // Old movement range
     public static final int OLD_MOVEMENT_RANGE = 3;
 
-    public static final int MIN_DISTANCE = 2;
 
     // First Aid File Extension
     public static final String EXTENSION_FIRST_AID_DATA = ".fad";
@@ -60,10 +54,6 @@ public class Constants {
 
     // font
     public static final String DEFAULT_FONT = "Dialog";
-
-    // Dimension
-    public static final int DIMENSION_DEFAULT_WIDTH = 128;
-    public static final int DIMENSION_TITLE_FONT_SIZE = 20;
 
     // HashMap key for data
     public static final String KEY_MATRIX_SIZE = "matrix_size";

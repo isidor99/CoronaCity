@@ -15,8 +15,8 @@ import java.nio.file.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-/**
- * This class is for monitoring file which keeps first aid data
+/*
+ * This thread monitors changes in file which keeps data about infected and recovered
  * All job is done in method watch()
  */
 
@@ -44,11 +44,14 @@ public class FileWatcherService extends Thread {
         this.fileChangeListener = fileChangeListener;
     }
 
+    /**
+     * Watch for changes in file
+     */
     private void watch() {
 
         try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
 
-            Path directory = Paths.get(Constants.FILE_PATH_FIRST_AID_DATA);
+            Path directory = Paths.get(Constants.FILE_PATH_DATA);
             directory.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
             while (true) {
@@ -72,6 +75,7 @@ public class FileWatcherService extends Thread {
                     if (fileName.toString().trim().endsWith(Constants.EXTENSION_FIRST_AID_DATA) &&
                             (kind.equals(ENTRY_MODIFY) || kind.equals(ENTRY_CREATE))) {
 
+                        // while reading, file can't be changed
                         synchronized (lock) {
 
                             byte[] bytes = Files.readAllBytes(directory.resolve(fileName));

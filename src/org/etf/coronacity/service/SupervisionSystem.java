@@ -6,11 +6,16 @@ import org.etf.coronacity.model.Alarm;
 import java.util.Stack;
 import java.util.function.Consumer;
 
+/*
+    Supervision system
+    Contains stack on which alarms are stored
+    When checkpoint detect new infected person, then new alarm is added on the stack
+    When ambulance is sent then alarm is popped from the stack
+ */
 public class SupervisionSystem implements CheckpointMeasurementListener {
 
     private Stack<Alarm> alarmStack;
     private Consumer<Long> alarmListener;
-    // private AlarmListener alarmListener;
 
     public SupervisionSystem() {
         this.alarmStack = new Stack<>();

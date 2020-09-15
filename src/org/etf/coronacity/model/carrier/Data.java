@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/*
+    Class for storing data about infected and recovered
+    This data is used for statistics
+ */
 public class Data implements Serializable {
 
     private int infected;

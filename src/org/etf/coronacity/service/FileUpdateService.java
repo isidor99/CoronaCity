@@ -14,6 +14,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
+/*
+    Thread that takes care for updating data file
+ */
 public class FileUpdateService extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(FileUpdateService.class.getName());
@@ -36,13 +39,16 @@ public class FileUpdateService extends Thread {
     @Override
     public void run() {
 
+        // lock is helper object
+        // while updating, file can be used just by one thread
+        // while updating, file can't be read by other thread
         synchronized (lock) {
 
             try {
 
                 ObjectInputStream inputStream =
                         new ObjectInputStream(
-                                new FileInputStream(Constants.FILE_PATH_FIRST_AID_DATA + Constants.DATA_FILE_NAME));
+                                new FileInputStream(Constants.FILE_PATH_DATA + Constants.DATA_FILE_NAME));
 
                 Data data = (Data) inputStream.readObject();
 
@@ -108,7 +114,7 @@ public class FileUpdateService extends Thread {
 
                 ObjectOutputStream outputStream =
                         new ObjectOutputStream(
-                                new FileOutputStream(Constants.FILE_PATH_FIRST_AID_DATA + Constants.DATA_FILE_NAME, false));
+                                new FileOutputStream(Constants.FILE_PATH_DATA + Constants.DATA_FILE_NAME, false));
 
                 outputStream.writeObject(data);
                 outputStream.flush();

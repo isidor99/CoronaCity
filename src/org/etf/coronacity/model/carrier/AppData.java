@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
+/*
  * Data carrier class
  * Here are stored all major data which are shared between multiple threads
  */
@@ -58,7 +58,7 @@ public class AppData implements Serializable {
         MatrixHelper.setHomesAndCheckpoints(matrix, buildings);
         MatrixHelper.setPeopleInHouses(persons, buildings, matrix.length);
 
-        setHospitals(MatrixHelper.createHospitals(matrix, matrix.length, capacity));
+        setHospitals(MatrixHelper.createHospitals(matrix, capacity));
     }
 
     public Object[][] getMatrix() {

@@ -1,6 +1,7 @@
 package org.etf.coronacity.gui.window;
 
 import org.etf.coronacity.helper.Constants;
+import org.etf.coronacity.helper.Dimensions;
 import org.etf.coronacity.helper.Utils;
 
 import javax.swing.*;
@@ -9,7 +10,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-/**
+/*
  *
  * StartWindow
  *
@@ -47,8 +48,12 @@ public class StartWindow extends JFrame {
     private static final String TEXT_LABEL_AMBULANCES = "Broj ambulanti*";
     private static final String TEXT_LABEL_START = "Start";
 
-    private static final String ERROR_WRONG_INPUT = "Morate unijeti sva polja.\nSva polja moraju biti brojne vrijednosti.";
-    private static final String ERROR_FEW_RESIDENTS = "Broj stanovnika mora biti veci";
+    private static final String ERROR_WRONG_INPUT = "Morate unijeti sva polja.\n" +
+            "Sva polja moraju biti brojne vrijednosti.\n" +
+            "Broj kuca i kontrolnih punktova mora biti veci od nule.";
+    private static final String ERROR_FEW_RESIDENTS = "Broj stanovnika mora biti veci.";
+    private static final String ERROR_MANY_BUILDINGS = "Previse zgrada\n " +
+            "Probajte da unesete manji broj kuca ili kontrolnih punktova.";
 
     private static final String TITLE = "Pocetni ekran";
 
@@ -71,7 +76,9 @@ public class StartWindow extends JFrame {
     //
 
 
-    // OPTION 1
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents() {
 
         // using GroupLayout
@@ -95,9 +102,10 @@ public class StartWindow extends JFrame {
         objectsVehiclesLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, 14));
 
         JLabel windowLabel = new JLabel(TEXT_LABEL_WINDOW);
-        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Constants.DIMENSION_TITLE_FONT_SIZE));
+        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Dimensions.TITLE_FONT_SIZE));
 
 
+        // labels
         JLabel numOfChildrenLabel = new JLabel(TEXT_LABEL_CHILDREN);
         JLabel numOfAdultsLabel = new JLabel(TEXT_LABEL_ADULTS);
         JLabel numOfOldLabel = new JLabel(TEXT_LABEL_OLD);
@@ -131,13 +139,15 @@ public class StartWindow extends JFrame {
                                                     .addComponent(numOfAdultsLabel)
                                                     .addComponent(numOfOldLabel)
                                                 )
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                    .addComponent(numOfChildrenTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                                    .addComponent(numOfAdultsTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                                    .addComponent(numOfOldTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
+                                                    .addComponent(numOfChildrenTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
+                                                    .addComponent(numOfAdultsTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
+                                                    .addComponent(numOfOldTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
                                                 )
                                         )
                                 )
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
                                         .addComponent(objectsVehiclesLabel)
                                         .addGroup(groupLayout.createSequentialGroup()
@@ -146,43 +156,49 @@ public class StartWindow extends JFrame {
                                                     .addComponent(numOfCheckpointsLabel)
                                                     .addComponent(numOfAmbulancesLabel)
                                                 )
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                    .addComponent(numOfHomesTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                                    .addComponent(numOfCheckpointsTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                                    .addComponent(numOfHospitalsTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
+                                                    .addComponent(numOfHomesTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
+                                                    .addComponent(numOfCheckpointsTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
+                                                    .addComponent(numOfHospitalsTextField, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
                                                 )
                                         )
                                 )
                         )
-                        .addComponent(submitButton, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
+                        .addComponent(submitButton, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH, Dimensions.DEFAULT_WIDTH)
         );
 
         // vertical groups
         groupLayout.setVerticalGroup(
                 groupLayout.createSequentialGroup()
                         .addComponent(windowLabel)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(residentsLabel)
                                 .addComponent(objectsVehiclesLabel)
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(numOfChildrenLabel)
                                 .addComponent(numOfChildrenTextField)
                                 .addComponent(numOfHomesLabel)
                                 .addComponent(numOfHomesTextField)
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(numOfAdultsLabel)
                                 .addComponent(numOfAdultsTextField)
                                 .addComponent(numOfCheckpointsLabel)
                                 .addComponent(numOfCheckpointsTextField)
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(numOfOldLabel)
                                 .addComponent(numOfOldTextField)
                                 .addComponent(numOfAmbulancesLabel)
                                 .addComponent(numOfHospitalsTextField)
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(submitButton)
         );
 
@@ -196,128 +212,9 @@ public class StartWindow extends JFrame {
         setLocationRelativeTo(null);
     }
 
-
-    /*
-    // OPTION 2
-    private void initComponents() {
-
-        // using GroupLayout
-        GroupLayout groupLayout = new GroupLayout(getContentPane());
-        setLayout(groupLayout);
-
-        // set auto gaps
-        groupLayout.setAutoCreateGaps(true);
-        groupLayout.setAutoCreateContainerGaps(true);
-
-
-        //
-        // init components
-        //
-
-        // init label
-        JLabel residentsLabel = new JLabel(TEXT_LABEL_RESIDENTS);
-        residentsLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, 14));
-
-        JLabel objectsVehiclesLabel = new JLabel(TEXT_LABEL_OBJECTS_VEHICLES);
-        objectsVehiclesLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, 14));
-
-        JLabel windowLabel = new JLabel(TEXT_LABEL_WINDOW);
-        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, 16));
-
-        JLabel numOfChildrenLabel = new JLabel(TEXT_LABEL_CHILDREN);
-        JLabel numOfAdultsLabel = new JLabel(TEXT_LABEL_ADULTS);
-        JLabel numOfOldLabel = new JLabel(TEXT_LABEL_OLD);
-        JLabel numOfHomesLabel = new JLabel(TEXT_LABEL_HOMES);
-        JLabel numOfCheckpointsLabel = new JLabel(TEXT_LABEL_CHECKPOINTS);
-        JLabel numOfAmbulancesLabel = new JLabel(TEXT_LABEL_AMBULANCES);
-
-        // init text fields
-        numOfChildrenTextField = new JTextField();
-        numOfAdultsTextField = new JTextField();
-        numOfOldTextField = new JTextField();
-        numOfHomesTextField = new JTextField();
-        numOfCheckpointsTextField = new JTextField();
-        numOfAmbulancesTextField = new JTextField();
-
-        // init button
-        submitButton = new JButton(TEXT_LABEL_START);
-
-        // horizontal groups
-        groupLayout.setHorizontalGroup(
-                groupLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(windowLabel)
-                        .addGroup(groupLayout.createSequentialGroup()
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addComponent(residentsLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfChildrenLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfChildrenTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfAdultsLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfAdultsTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfOldLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfOldTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                )
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addComponent(objectsVehiclesLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfHomesLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfHomesTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfCheckpointsLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfCheckpointsTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfAmbulancesLabel, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                        .addComponent(numOfAmbulancesTextField, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-                                )
-                        )
-                        .addComponent(submitButton, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH, Constants.DIMENSION_DEFAULT_WIDTH)
-        );
-
-        // vertical groups
-        groupLayout.setVerticalGroup(
-                groupLayout.createSequentialGroup()
-                        .addComponent(windowLabel)
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(residentsLabel)
-                                .addComponent(objectsVehiclesLabel)
-                        )
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(numOfChildrenLabel)
-                                .addComponent(numOfHomesLabel)
-                        )
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(numOfChildrenTextField)
-                                .addComponent(numOfHomesTextField)
-                        )
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(numOfAdultsLabel)
-                                .addComponent(numOfCheckpointsLabel)
-                        )
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(numOfAdultsTextField)
-                                .addComponent(numOfCheckpointsTextField)
-                        )
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(numOfOldLabel)
-                                .addComponent(numOfAmbulancesLabel)
-                        )
-                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(numOfOldTextField)
-                                .addComponent(numOfAmbulancesTextField)
-                        )
-                        .addComponent(submitButton)
-        );
-
-
-        groupLayout.linkSize(SwingConstants.HORIZONTAL, numOfChildrenTextField, numOfAdultsTextField, numOfOldTextField,
-                numOfHomesTextField, numOfCheckpointsTextField, numOfAmbulancesTextField);
-
-        setTitle(TITLE);
-        pack();
-        setVisible(true);
-        setResizable(false);
-        setLocationRelativeTo(null);
-    }
-
+    /**
+     * Set button action listener
      */
-
-
     private void setListeners() {
 
         submitButton.addActionListener(action -> {
@@ -325,7 +222,7 @@ public class StartWindow extends JFrame {
             int capacity = 0;
 
             if (checkInput())
-                // show message to user that input is not valid
+                // show message to user that input is not valid (all must be numbers)
                 JOptionPane.showMessageDialog(
                         this,
                         ERROR_WRONG_INPUT,
@@ -334,10 +231,19 @@ public class StartWindow extends JFrame {
                 );
 
             else if (checkResidentsNumber())
-                // show message to user that input is not valid
+                // show message to user that input is not valid (number of residents too low)
                 JOptionPane.showMessageDialog(
                         this,
                         ERROR_FEW_RESIDENTS,
+                        Constants.ERROR_MESSAGE,
+                        JOptionPane.ERROR_MESSAGE
+                );
+
+            else if (checkBuildingsNumber())
+                // show message to user that input is not valid (number of buildings too high)
+                JOptionPane.showMessageDialog(
+                        this,
+                        ERROR_MANY_BUILDINGS,
                         Constants.ERROR_MESSAGE,
                         JOptionPane.ERROR_MESSAGE
                 );
@@ -356,10 +262,14 @@ public class StartWindow extends JFrame {
         });
     }
 
-
+    /**
+     * Checks all text fields
+     * Content of each text field must be a number
+     * @return boolean value
+     *      If content of each text field is number, then return value is false
+     *      Otherwise return value is true
+     */
     private boolean checkInput() {
-
-        // check if input is number
 
         return
                 numOfChildrenTextField.getText().isEmpty() || !Pattern.matches(REGEX_NUMBER, numOfChildrenTextField.getText()) ||
@@ -370,6 +280,12 @@ public class StartWindow extends JFrame {
                         numOfHospitalsTextField.getText().isEmpty() || !Pattern.matches(REGEX_NUMBER, numOfHospitalsTextField.getText());
     }
 
+    /**
+     * Checks number of residents (sum of children, adults and old)
+     * @return boolean value
+     *      If 10% of number of residents is lower that 1 then return values is true
+     *      Otherwise return values is false
+     */
     private boolean checkResidentsNumber() {
 
         int numOfChildren = Integer.parseInt(numOfChildrenTextField.getText());
@@ -379,7 +295,26 @@ public class StartWindow extends JFrame {
         return .1 * (numOfChildren + numOfAdults + numOfOld) < 1;
     }
 
-    //
+    /**
+     * Checks number of buildings
+     * @return boolean value
+     *      If square of (size - 1) is lower than 70% of number of buildings, then return values if true
+     *      Otherwise return values is false
+     */
+    private boolean checkBuildingsNumber() {
+
+        int numOfHomes = Integer.parseInt(numOfHomesTextField.getText());
+        int numOfCheckpoint = Integer.parseInt(numOfCheckpointsTextField.getText());
+
+        return Math.pow(size - 1, 2) < .7 * (numOfHomes + numOfCheckpoint);
+    }
+
+    /**
+     * Grabs data that needs to be transferred to next window
+     * @return HashMap<String, Integer>
+     *     Key is String, some constant already defined in Constants.java class
+     *     Values are integers that represents number of children, adults,...
+     */
     private HashMap<String, Integer> grabData() {
 
         HashMap<String, Integer> data = new HashMap<>();

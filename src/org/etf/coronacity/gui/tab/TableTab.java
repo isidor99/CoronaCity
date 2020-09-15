@@ -13,6 +13,11 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+/*
+ * This class is JPanel for JTabbedPane in StatisticsWindow.java class
+ * Contains table with data
+ * Table is created using DataTableModel
+ */
 public class TableTab extends JPanel {
 
     private static final Logger LOGGER = Logger.getLogger(TableTab.class.getName());
@@ -30,6 +35,10 @@ public class TableTab extends JPanel {
         initComponents();
     }
 
+    /**
+     * Exports data from table to .csv file
+     * @param filename name of file in which data will to be saved
+     */
     public void exportToCsv(String filename) {
 
         try {
@@ -59,7 +68,10 @@ public class TableTab extends JPanel {
 
     //
     // private
-    //
+
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents() {
 
         setLayout(new GridLayout(1, 1));

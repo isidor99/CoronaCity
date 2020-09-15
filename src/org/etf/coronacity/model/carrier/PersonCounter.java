@@ -2,6 +2,10 @@ package org.etf.coronacity.model.carrier;
 
 import java.io.Serializable;
 
+/*
+    This class counts infected and recovered by gender and age
+    This class are used for drawing graphs
+ */
 public class PersonCounter implements Serializable {
 
     private long infectedMale;

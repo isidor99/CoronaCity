@@ -15,10 +15,20 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/*
+    This helper class
+    Contains methods for generating persons and buildings
+ */
 public class Generator {
 
     private static final Logger LOGGER = Logger.getLogger(Generator.class.getName());
 
+    /**
+     * Generate buildings
+     * @param hSize number of homes
+     * @param cSize number of checkpoints
+     * @return HashMap<Long, Building> key is buildingId and values is that building
+     */
     public static HashMap<Long, Building> generateBuildings(int hSize, int cSize) {
 
         HashMap<Long, Building> buildings = new HashMap<>();
@@ -36,20 +46,12 @@ public class Generator {
         return buildings;
     }
 
-
-    /*public static ArrayList<Checkpoint> generateCheckpoints(int size) {
-
-        ArrayList<Checkpoint> checkpoints = new ArrayList<>();
-
-        for (int i = 0; i < size; i++)
-            checkpoints.add(new Checkpoint());
-
-        return checkpoints;
-    }*/
-
-
-    /*
-        Generate Persons
+    /**
+     * Generate persons
+     * @param cSize number of children
+     * @param aSize number of adults
+     * @param oSize number of old
+     * @return HashMap<Long, Building> key is personId and values is that person
      */
     public static HashMap<Long, Person> generatePersons(int cSize, int aSize, int oSize) {
 
@@ -103,77 +105,14 @@ public class Generator {
             persons.put(person.getId(), person);
         }
 
-        /*
-        // generate children
-        for (int i = 0; i < cSize; i++) {
-
-            Person child = new Child();
-
-            child.setGender((short) Utils.getRandomFromRange(Constants.GENDER_MALE, Constants.GENDER_FEMALE));
-
-            int namePos = child.getGender() == Constants.GENDER_MALE ?
-                    Utils.getRandomFromRange(0, maleNames.size() - 1) :
-                    Utils.getRandomFromRange(0, femaleNames.size() - 1);
-
-            int surnamePos = Utils.getRandomFromRange(0, surnames.size() - 1);
-
-            int age = Utils.getRandomFromRange(Constants.AGE_CHILD_LOW, Constants.AGE_CHILD_HIGH);
-
-            child.setName(child.getGender() == Constants.GENDER_MALE ? maleNames.get(namePos) : femaleNames.get(namePos));
-            child.setSurname(surnames.get(surnamePos));
-            child.setBirthYear(year - age);
-
-            persons.add(child);
-        }
-
-        // generate adults
-        for (int i = 0; i < aSize; i++) {
-
-            Person adult = new Adult();
-
-            adult.setGender((short) Utils.getRandomFromRange(Constants.GENDER_MALE, Constants.GENDER_FEMALE));
-
-            int namePos = adult.getGender() == Constants.GENDER_MALE ?
-                    Utils.getRandomFromRange(0, maleNames.size() - 1) :
-                    Utils.getRandomFromRange(0, femaleNames.size() - 1);
-
-            int surnamePos = Utils.getRandomFromRange(0, surnames.size() - 1);
-
-            int age = Utils.getRandomFromRange(Constants.AGE_ADULT_LOW, Constants.AGE_ADULT_HIGH);
-
-            adult.setName(adult.getGender() == Constants.GENDER_MALE ? maleNames.get(namePos) : femaleNames.get(namePos));
-            adult.setSurname(surnames.get(surnamePos));
-            adult.setBirthYear(year - age);
-
-            persons.add(adult);
-        }
-
-        // generate old
-        for (int i = 0; i < oSize; i++) {
-
-            Person old = new Old();
-
-            old.setGender((short) Utils.getRandomFromRange(Constants.GENDER_MALE, Constants.GENDER_FEMALE));
-
-            int namePos = old.getGender() == Constants.GENDER_MALE ?
-                    Utils.getRandomFromRange(0, maleNames.size() - 1) :
-                    Utils.getRandomFromRange(0, femaleNames.size() - 1);
-
-            int surnamePos = Utils.getRandomFromRange(0, surnames.size() - 1);
-
-            int age = Utils.getRandomFromRange(Constants.AGE_OLD_LOW, Constants.AGE_OLD_HIGH);
-
-            old.setName(old.getGender() == Constants.GENDER_MALE ? maleNames.get(namePos) : femaleNames.get(namePos));
-            old.setSurname(surnames.get(surnamePos));
-            old.setBirthYear(year - age);
-
-            persons.add(old);
-        }*/
-
         return persons;
     }
 
-
+    /**
+     * Generate ambulances (ambulance vehicles)
+     * @param numberOfAmbulances number of ambulances
+     * @return ArrayList<Ambulance> list of ambulances
+     */
     public static ArrayList<Ambulance> generateAmbulances(int numberOfAmbulances) {
 
         ArrayList<Ambulance> ambulances = new ArrayList<>();
@@ -184,7 +123,12 @@ public class Generator {
         return ambulances;
     }
 
-
+    /**
+     * Generate hospitals
+     * @param size size of matrix (initially four hospitals are created)
+     * @param capacity capacity of each hospital (same for each)
+     * @return ArrayList<Hospital> list of hospitals
+     */
     public static ArrayList<Hospital> generateHospitals(int size, int capacity) {
 
         ArrayList<String> names = readTextFile(new File(Constants.FILE_PATH_HOSPITAL_NAMES));
@@ -195,6 +139,8 @@ public class Generator {
         int count = 0;
         while (count < 4) {
 
+            // generate hospital name
+            // names have to be different
             int rand = Utils.getRandomFromRange(0, names.size() - 1);
 
             boolean isInArray = Arrays.stream(namesInd).anyMatch(i -> i == rand);
@@ -215,9 +161,11 @@ public class Generator {
     // Private Methods
     //
 
-
-    /*
-        Reading given text file
+    /**
+     * Read text file
+     * This method is used to read file with male and female names as well as surnames
+     * @param file file name that contains targeted data
+     * @return ArrayList<String> list of strings
      */
     private static ArrayList<String> readTextFile(File file) {
 
@@ -250,8 +198,13 @@ public class Generator {
         return data;
     }
 
-    /*
-        Calculate minimum age
+    /**
+     * Get age lower bound
+     * @param cCount current number of children
+     * @param aCount current number of adults
+     * @param cSize total number of children
+     * @param aSize total number of adults
+     * @return int (age lower bound)
      */
     private static int calculateAgeFrom(int cCount, int aCount, int cSize, int aSize) {
 
@@ -263,8 +216,13 @@ public class Generator {
         return Constants.AGE_OLD_LOW;
     }
 
-    /*
-        Calculate maximum age
+    /**
+     * Get age upper bound
+     * @param aCount current number of adults
+     * @param oCount current number of old
+     * @param aSize total number of adults
+     * @param oSize total number of old
+     * @return int (age upper bound)
      */
     private static int calculateAgeTo(int aCount, int oCount, int aSize, int oSize) {
 

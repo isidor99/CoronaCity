@@ -1,5 +1,9 @@
 package org.etf.coronacity.helper;
 
+/*
+    This is helper class
+    This class contains String objects that represents names in statistic tables
+ */
 public class TableNames {
 
     public static final String COLUMN_NUM = "#";

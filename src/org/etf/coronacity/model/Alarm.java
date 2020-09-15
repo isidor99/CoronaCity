@@ -2,6 +2,7 @@ package org.etf.coronacity.model;
 
 import java.io.Serializable;
 
+
 public class Alarm implements Serializable {
 
     private static long alarmId = 1;

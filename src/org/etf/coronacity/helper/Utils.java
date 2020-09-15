@@ -1,6 +1,7 @@
 package org.etf.coronacity.helper;
 
 import org.etf.coronacity.gui.window.CoronaMainWindow;
+import org.etf.coronacity.model.carrier.AppData;
 import org.etf.coronacity.model.carrier.Data;
 import org.etf.coronacity.model.LocationData;
 import org.etf.coronacity.model.building.Building;
@@ -10,43 +11,24 @@ import org.etf.coronacity.model.building.Hospital;
 import org.etf.coronacity.model.person.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
-
-    int getRandomFromRange(int, int);
-    void getRandomPositionForHospital(int, int, int, int);
-    double getBodyTemperatureFromRange(double, int);
-    int getCapacityFromResidentsNumber(int);
-    int getMovementRangeFromMatrixSize(int);
-    int calculateMovingRange(LocationData, int, int);
-    double distance(int, int, int, int);
-    ArrayList<Person> getAdultsAndOld(HashMap<Long, Person>);
-    ArrayList<Person> getChildren(HashMap<Long, Person>);
-    ArrayList<Home> getHomes(HashMap<Long, Building>);
-    ArrayList<Home> getHomesWithHosts(ArrayList<Home>);
-    ArrayList<Checkpoint> getCheckpoints(HashMap<Long, Building>);
-    ArrayList<Person> getHostsForHome(HashMap<Long, Person>, Home);
-    ArrayList<Hospital> getHospitals(Object[][]);
-    LocationData.Directions getRandomDirection();
-    double average(LinkedList<Double>);
-    void initDataFile();
-    void createLoggerHandler(final Logger);
-
+/*
+    This is helper class
+    This class contains some helper static functions which are used in other classes
  */
-
 public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
 
-    /*
-        Returns random number for given range
+    /**
+     * Random from given range
+     * @param from lower limit including that number
+     * @param to upper limit including that number
+     * @return random from given range
      */
     public static int getRandomFromRange(int from, int to) {
 
@@ -55,8 +37,11 @@ public class Utils {
         return random.nextInt(to + 1 - from) + from;
     }
 
-    /*
-        When new hospital is created, calculate new position for it
+    /**
+     * When new hospital is created, get random position from first or last row/column
+     * @param size size of matrix
+     * @param direction specifies row or column
+     * @param hospital new hospital which is created
      */
     public static void getRandomPositionForHospital(int size, short direction, Hospital hospital) {
 
@@ -74,8 +59,12 @@ public class Utils {
         }
     }
 
-    /*
-        Generate body temperature
+    /**
+     * Calculate new random body temperature
+     * Body temperature can change by .1 to .6 relative to the previous value
+     * @param currentTemperature current body temperature
+     * @param sgn indicates whether the body temperature will rise or fall
+     * @return double, new value of body temperature
      */
     public static double getBodyTemperatureFromRange(double currentTemperature, int sgn) {
 
@@ -84,7 +73,6 @@ public class Utils {
         double newTemp = .1 + (.6 - .1) * random.nextDouble();
 
         // temperature must be between 35.0 and 40.0
-        // this piece of code enables this feature
         if (currentTemperature - newTemp < Constants.TEMPERATURE_LOWEST)
             sgn = 1;
         else if (currentTemperature + newTemp > Constants.TEMPERATURE_HIGHEST)
@@ -93,37 +81,30 @@ public class Utils {
         return currentTemperature + sgn * newTemp;
     }
 
-
-    /*
-        Capacity for ambulants
+    /**
+     * Random between 10% and 15% of number of residents
+     * @param residents number of residents
+     * @return capacity of hospital
      */
     public static int getCapacityFromResidentsNumber(int residents) {
-
-        double from = .1 * residents;
-        double to = .15 * residents;
-
-        String[] fromString = String.valueOf(from).split("\\.");
-
-        int fromInt = from > Integer.parseInt(fromString[0]) ?
-                Integer.parseInt(fromString[0]) + 1 :
-                Integer.parseInt(fromString[0]);
-
-        int toInt = Integer.parseInt(String.valueOf(to).split("\\.")[0]);
-
-        return getRandomFromRange(fromInt, toInt);
+        return getRandomFromRange((int) Math.round(.1 * residents), (int) Math.round(.15 * residents));
     }
 
-
-    /*
-        Calculate movement range for Adults
+    /**
+     * Calculate 25% of size of matrix
+     * @param size size of matrix
+     * @return 25 % of size
      */
     public static int getMovementRangeFromMatrixSize(int size) {
 
         return (int) Math.round(.25 * size);
     }
 
-    /*
-        Calculate movement range in all directions for Adults and Old
+    /**
+     * Calculate moving range for person based on current position and offset
+     * @param locationData location data of person (contains number of row and columns of person in matrix)
+     * @param offset number of fields from home in one direction that person can go
+     * @param size size of matrix
      */
     public static void calculateMovingRange(LocationData locationData, int offset, int size) {
 
@@ -132,6 +113,7 @@ public class Utils {
         int minY = locationData.getPositionY() - offset;
         int maxY = locationData.getPositionY() + offset;
 
+        // set random direction
         locationData.setDirection(getRandomDirection());
 
         // set X
@@ -139,10 +121,12 @@ public class Utils {
 
             locationData.setMinX(minX);
             locationData.setMaxX(maxX);
+
         } else if (minX < 0) {
 
             locationData.setMaxX(maxX - minX);
             locationData.setMinX(0);
+
         } else {
 
             locationData.setMinX(minX - (maxX - (size - 1)));
@@ -155,10 +139,12 @@ public class Utils {
 
             locationData.setMinY(minY);
             locationData.setMaxY(maxY);
+
         } else if (minY < 0) {
 
             locationData.setMaxY(maxY - minY);
             locationData.setMinY(0);
+
         } else {
 
             locationData.setMinY(minY - (maxY - (size - 1)));
@@ -166,17 +152,10 @@ public class Utils {
         }
     }
 
-
-    /*
-        Gets coordinates and calculate distance between points
-     */
-    public static double distance(int x1, int y1, int x2, int y2) {
-
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    }
-
-    /*
-        Return adults and old from persons list
+    /**
+     * Get objects of type Adult and Old from objects list of type Person
+     * @param persons list of persons
+     * @return list of adults and old
      */
     public static ArrayList<Person> getAdultsAndOld(HashMap<Long, Person> persons) {
 
@@ -184,17 +163,12 @@ public class Utils {
                 persons.values().stream()
                         .filter(person -> person instanceof Adult || person instanceof Old)
                         .collect(Collectors.toList());
-
-        /*ArrayList<Person> adultsOld = new ArrayList<>();
-
-        for (Person p : persons.values())
-            if (p instanceof Adult || p instanceof Old)
-                adultsOld.add(p);*/
     }
 
-
-    /*
-        Get children from persons list
+    /**
+     * Get objects of type Child from objects list of type Person
+     * @param persons list of persons
+     * @return list of children
      */
     public static ArrayList<Child> getChildren(HashMap<Long, Person> persons) {
 
@@ -203,19 +177,12 @@ public class Utils {
                         .filter(person -> person instanceof Child)
                         .map(Child.class::cast)
                         .collect(Collectors.toList());
-
-        /*ArrayList<Child> children = new ArrayList<>();
-
-        for (Person p : persons.values())
-            if (p instanceof Child)
-                children.add((Child) p);
-
-        return children;*/
     }
 
-
-    /*
-        Get homes from buildings list
+    /**
+     * Get objects of type Home from objects list of type Building
+     * @param buildings list of buildings
+     * @return list of homes
      */
     public static ArrayList<Home> getHomes(HashMap<Long, Building> buildings) {
 
@@ -224,19 +191,12 @@ public class Utils {
                         .filter(building -> building instanceof Home)
                         .map(Home.class::cast)
                         .collect(Collectors.toList());
-
-        /*ArrayList<Home> homes = new ArrayList<>();
-
-        for (Building b : buildings.values())
-            if (b instanceof Home)
-                homes.add((Home) b);
-
-        return homes;*/
     }
 
-
-    /*
-        Get homes which are not empty
+    /**
+     * Get non-empty homes
+     * @param homes list of homes
+     * @return list of non-empty homes
      */
     public static ArrayList<Home> getHomesWithHosts(ArrayList<Home> homes) {
 
@@ -244,17 +204,12 @@ public class Utils {
                 homes.stream()
                         .filter(home -> home.getHosts() > 0)
                         .collect(Collectors.toList());
-        /*ArrayList<Home> homesWithHosts = new ArrayList<>();
-
-        for (Home h : homes)
-            if (h.getHosts() > 0)
-                homesWithHosts.add(h);
-
-        return homesWithHosts;*/
     }
 
-    /*
-        Return checkpoints from buildings
+    /**
+     * Get objects of type Checkpoint from objects list of type Building
+     * @param buildings list of buildings
+     * @return list of checkpoints
      */
     public static ArrayList<Checkpoint> getCheckpoints(HashMap<Long, Building> buildings) {
 
@@ -265,45 +220,40 @@ public class Utils {
                         .collect(Collectors.toList());
     }
 
-    /*
-        Return data for persons which live in given house
+    /**
+     * Get list of persons from home with given id
+     * @param persons list of all persons
+     * @param homeId id of home
+     * @return list of persons in home with given id (id is unique)
      */
-    public static ArrayList<Person> getHostsForHome(HashMap<Long, Person> persons, Home home) {
+    public static ArrayList<Person> getHostsForHome(HashMap<Long, Person> persons, long homeId) {
 
         return (ArrayList<Person>)
                 persons.values().stream()
-                        .filter(person -> person.getHomeId() == home.getId())
+                        .filter(person -> person.getHomeId() == homeId)
                         .collect(Collectors.toList());
-
-        /*ArrayList<Person> hosts = new ArrayList<>();
-
-        for (Person p : persons.values()) {
-
-            if (p.getHomeId() == home.getId())
-                hosts.add(p);
-
-            if (home.getHosts() == hosts.size())
-                break;
-        }
-
-        return hosts;*/
     }
 
-    /*
-        Return hospitals from matrix which represents city
+    /**
+     * For given position return list of persons on that position
+     * Position is represented with X and Y (row and column in matrix, x is number of row, y is number of column)
+     * @param persons list of all persons
+     * @param posX number of row in matrix
+     * @param posY number of column in matrix
+     * @return list of persons on given position
      */
-    public static ArrayList<Hospital> getHospitals(Object[][] matrix) {
+    public static ArrayList<Person> getPersonsOnPosition(Collection<Person> persons, int posX, int posY) {
 
-        ArrayList<Hospital> hospitals = new ArrayList<>();
-
-        for (Object[] arr : matrix)
-            for (Object object : arr)
-                if (object instanceof Hospital)
-                    hospitals.add((Hospital) object);
-
-        return hospitals;
+        return (ArrayList<Person>) persons.stream()
+                .filter(person ->
+                        person.getLocationData().getPositionX() == posX && person.getLocationData().getPositionY() == posY)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Pick one of eight possible directions
+     * @return random direction
+     */
     public static LocationData.Direction getRandomDirection() {
 
         Random random = new Random();
@@ -312,6 +262,11 @@ public class Utils {
         return LocationData.Direction.values()[pick];
     }
 
+    /**
+     * Calculate average from LinkedList values
+     * @param temperatures LinkedList with double values
+     * @return double, average value of LinkedList values
+     */
     public static double average(LinkedList<Double> temperatures) {
 
         double sum = 0;
@@ -319,6 +274,56 @@ public class Utils {
             sum += temp;
 
         return sum / temperatures.size();
+    }
+
+    /**
+     * Write simulation data to .txt file when simulation is ended
+     * @param writer FileWriter object
+     * @param appData application data
+     * @param time simulation duration
+     * @throws IOException FileWriter object can throw this error
+     * @throws ClassNotFoundException This error may be thrown when casting data from file to object of type Data
+     */
+    public static void writeDataToTxtFile(FileWriter writer, AppData appData, long time) throws IOException, ClassNotFoundException {
+
+        long seconds = time / 1000 % 60;
+        long minutes = time / (1000 * 60) % 60;
+        long hours = time / (1000 * 60 * 60);
+
+        HashMap<String, Integer> data = appData.getData();
+
+        writer.write("Vrijeme trajanja simulacije " +
+                (hours > 0 ? hours + " sati" : "") + ", " +
+                (minutes > 0 ? minutes + " minuta" : "") + ", " +
+                seconds + " sekundi\n");
+
+        writer.write("Broj djece " + data.get(Constants.KEY_NUM_OF_CHILDREN) + "\n");
+        writer.write("Broj odraslih " + data.get(Constants.KEY_NUM_OF_ADULTS) + "\n");
+        writer.write("Broj staraca " + data.get(Constants.KEY_NUM_OF_OLD) + "\n");
+        writer.write("Broj kuća " + data.get(Constants.KEY_NUM_OF_HOMES) + "\n");
+        writer.write("Broj kontrolnih punktova " + data.get(Constants.KEY_NUM_OF_CHECKPOINTS) + "\n");
+        writer.write("Broj bolnica " + appData.getHospitals().size() + "\n");
+        writer.write("Broj ambulantnih vozila " + data.get(Constants.KEY_NUM_OF_AMBULANCES) + "\n");
+
+        ObjectInputStream objectInputStream =
+                new ObjectInputStream(new FileInputStream(new File(Constants.FILE_PATH_DATA + Constants.DATA_FILE_NAME)));
+
+        Data stats = (Data) objectInputStream.readObject();
+
+        objectInputStream.close();
+
+        writer.write("Ukupan broj zaraženih " + stats.getInfected() + "\n");
+        writer.write("Ukupan broj oporavljenih " + stats.getRecovered() + "\n");
+        writer.write("Broj zaražene djece " + stats.getRecovered() + "\n");
+        writer.write("Broj oporavljene djece " + stats.getRecovered() + "\n");
+        writer.write("Broj zaraženih osoba srednje životne dobi " + stats.getRecovered() + "\n");
+        writer.write("Broj oporavljenih osoba srednje životne dobi " + stats.getRecovered() + "\n");
+        writer.write("Broj zaraženih osoba starije životne dobi " + stats.getRecovered() + "\n");
+        writer.write("Broj oporaveljih osoba starije životne dobi " + stats.getRecovered() + "\n");
+        writer.write("Broj zaraženih muškaraca " + stats.getRecovered() + "\n");
+        writer.write("Broj oporavljenih muškaraca " + stats.getRecovered() + "\n");
+        writer.write("Broj zaraženih žena " + stats.getRecovered() + "\n");
+        writer.write("Broj oporavljenih žena " + stats.getRecovered() + "\n");
     }
 
     /**
@@ -331,7 +336,7 @@ public class Utils {
 
             ObjectOutputStream outputStream =
                     new ObjectOutputStream(
-                            new FileOutputStream(Constants.FILE_PATH_FIRST_AID_DATA + Constants.DATA_FILE_NAME));
+                            new FileOutputStream(Constants.FILE_PATH_DATA + Constants.DATA_FILE_NAME));
 
             Data data = new Data();
 
@@ -345,6 +350,10 @@ public class Utils {
         }
     }
 
+    /**
+     * Init Logger Handler
+     * @param LOGGER Logger to init
+     */
     public static void createLoggerHandler(final Logger LOGGER) {
 
         try {

@@ -12,6 +12,11 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+/*
+    This thread isn't used
+ */
+
+@Deprecated
 public class UrgentMovementThread extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(UrgentMovementThread.class.getName());
@@ -62,7 +67,7 @@ public class UrgentMovementThread extends Thread {
             int prevY = person.getLocationData().getPositionY();
 
             person.getLocationData().setPosition(node.getX(), node.getY());
-            movementListener.onMovementPerformed(person.toString());
+            movementListener.onMovementPerformed(person.toString(), false);
 
             try {
                 Thread.sleep(Constants.PERSON_THREAD_SLEEP_TIME);

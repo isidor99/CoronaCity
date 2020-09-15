@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
+/*
+    Thread that checks temperatures of each infected in each hospital
+ */
 public class HospitalThread extends Thread {
 
     private ArrayList<Hospital> hospitals;
@@ -33,6 +36,9 @@ public class HospitalThread extends Thread {
     //
     //
 
+    /**
+     * After temperature is changed, store new temperature of person to list
+     */
     private void measureTemperature() {
 
         hospitals.forEach(hospital -> hospital.getInfected()
@@ -50,6 +56,9 @@ public class HospitalThread extends Thread {
                 }));
     }
 
+    /**
+     * Check last three temperatures, if average is lower that 37.0, send that person home
+     */
     private void checkHealth() {
 
         hospitals.forEach(hospital -> {
@@ -73,23 +82,5 @@ public class HospitalThread extends Thread {
 
             }
         });
-
-        /*hospitals.forEach(hospital -> hospital.getInfected()
-                .values()
-                .forEach(person -> {
-
-                    LinkedList<Double> temperatures = hospital.getTemperaturesList(person.getId());
-
-                    if (temperatures.size() >= 3) {
-
-                        double averageTemperature = Utils.average(temperatures);
-
-                        if (averageTemperature < 37.0) {
-                            // infected is recovered
-                            hospitalListener.onInfectedRecovered(person);
-                            hospital.getInfected().remove(person.getId());
-                        }
-                    }
-                }));*/
     }
 }

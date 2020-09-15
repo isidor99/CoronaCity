@@ -97,9 +97,9 @@ public abstract class Person implements Serializable {
     public String toString() {
 
         return getId() + ", " + getName() + ", " + getSurname() + ", " + getBirthYear() + ", " +
-                getGender().toString() + ", " + getBodyTemperature() + ", " + homeId + ", " +
-                locationData.getPositionX() + ", " + locationData.getPositionY() + ", " +
-                locationData.getDirection().toString() + ", " + isInfected() + "\n";
+                getGender().toString() + ", " + getBodyTemperature() + ", " +
+                (locationData.getPositionX() + 1) + ", " + (locationData.getPositionY() + 1) + ", " +
+                locationData.getDirection().toString() + ", " + homeId + ", " + isInfected() + "\n";
     }
 
 

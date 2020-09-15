@@ -3,6 +3,7 @@ package org.etf.coronacity.gui.window;
 import org.etf.coronacity.helper.*;
 import org.etf.coronacity.interfaces.*;
 import org.etf.coronacity.model.*;
+import org.etf.coronacity.model.building.Checkpoint;
 import org.etf.coronacity.model.building.Home;
 import org.etf.coronacity.model.building.Hospital;
 import org.etf.coronacity.model.carrier.AmbulanceMovementData;
@@ -16,6 +17,7 @@ import org.etf.coronacity.service.timer.TemperatureTimerTask;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.io.*;
@@ -25,7 +27,12 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-public class CoronaMainWindow extends JFrame implements TemperatureUpdateListener, MovementListener {
+/*
+ * Main Window
+ * The main logic of the application is executed in this window
+ */
+public class CoronaMainWindow extends JFrame implements TemperatureUpdateListener, MovementListener,
+        AmbulanceMovementListener {
 
     private static final Logger LOGGER = Logger.getLogger(CoronaMainWindow.class.getName());
 
@@ -47,7 +54,6 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
     private AppData appData;
     private Object lock;
     private ConcurrentHashMap<Long, AmbulanceMovementThread> ambulanceThreads;
-    private ConcurrentHashMap<Long, UrgentMovementThread> urgentThreads;
     private HospitalThread hospitalThread;
 
     // button names
@@ -83,7 +89,6 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         appData = new AppData(data);
         lock = new Object();
         ambulanceThreads = new ConcurrentHashMap<>(data.get(Constants.KEY_NUM_OF_AMBULANCES) + 1, 1);
-        urgentThreads = new ConcurrentHashMap<>();
 
         Utils.createLoggerHandler(LOGGER);
 
@@ -110,6 +115,9 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         setListeners();
     }
 
+    /**
+     * Invoked whenever temperature is changed (every 30 seconds)
+     */
     @Override
     public void onTemperatureUpdated() {
 
@@ -120,7 +128,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
          *  If after the temperature change in the previous cycle
          *  there were neither infected nor recovered then PersonCounter
          *  will be null and that can cause serious error.
-         *  To prevent that scenario this method needs to be invoked after every
+         *  To prevent that scenario this thread needs to be invoked after every
          *  temperature update.
          */
         new FileUpdateService(lock, null, appData.getTime(), true).start();
@@ -129,15 +137,44 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         appData.setTempTimerTickTime(System.currentTimeMillis());
         appData.setTime(appData.getTime() + 30);
 
+        // invoke hospital thread
+        // check all infected in hospitals
         hospitalThread = new HospitalThread(appData.getHospitals());
         hospitalThread.setRecoverListener(this::onInfectedRecovered);
         hospitalThread.start();
     }
 
-    // all this is in test phase
+    /**
+     * Invoked when person movement is preformed
+     * Displays message in JTextArea
+     * @param message String that needs to be displayed
+     */
     @Override
-    public synchronized void onMovementPerformed(String message) {
+    public synchronized void onMovementPerformed(String message, boolean highlight) {
         dataTextArea.append(num++ + ", " + message);
+        MatrixHelper.setMatrixButtonsToolTipTexts(appData, matrixButtons);
+    }
+
+    /**
+     * Invoked when ambulance movement is performed
+     * Sets color of button which represents current ambulance position
+     * @param posX current ambulance position x (row in matrix)
+     * @param posY current ambulance position y (column in matrix)
+     * @param prevX previous ambulance position x (row in matrix)
+     * @param prevY previous ambulance postion y (columns in matrix)
+     */
+    @Override
+    public void onMovementPerformed(int posX, int posY, int prevX, int prevY) {
+
+        if (appData.getMatrix()[prevX][prevY] == null)
+            matrixButtons[prevX][prevY].setBackground(null);
+        else if (appData.getMatrix()[prevX][prevY] instanceof Checkpoint)
+            matrixButtons[prevX][prevY].setBackground(Color.decode(Colors.COLOR_CHECKPOINT));
+        else if (appData.getMatrix()[prevX][prevY] instanceof Home)
+            matrixButtons[prevX][prevY].setBackground(Color.decode(Colors.COLOR_HOME));
+
+        if (!(appData.getMatrix()[posX][posY] instanceof Hospital))
+            matrixButtons[posX][posY].setBackground(Color.decode(Colors.COLOR_AMBULANCE));
     }
 
     //
@@ -147,8 +184,9 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
     // consumer methods
 
     /**
-     *
-     *
+     * Invoked when file data is changed
+     * File contains data about total number of infected and recovered
+     * This methods updates infected and recovered labels
      */
     private void onFileChanged(Data data) {
 
@@ -165,6 +203,8 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
     /**
      * This method is passed to SupervisionSystem as consumer function
+     * When infected person is detected, put Alarm on stack, stop that person
+     * And notify other from the same house to go home
      */
     private void alarm(long personId) {
 
@@ -175,6 +215,8 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
         notifyHousehold(person);
 
+        // update file with data about infected
+        // this file is used for statistics too
         new FileUpdateService(lock, person, appData.getTime(), true).start();
     }
 
@@ -203,8 +245,10 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
             appData.getPersons().values()
                     .stream()
                     .filter(p -> p.getHomeId() == person.getHomeId())
-                    .forEach(p -> p.setMove(false));
+                    .forEach(p -> p.setMove(true));
 
+        // update file with data about recovered
+        // this file is used for statistics too
         new FileUpdateService(lock, person, appData.getTime(), false).start();
     }
 
@@ -228,7 +272,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         createButtons();
 
         JLabel windowLabel = new JLabel(TEXT_LABEL_WINDOW);
-        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Constants.DIMENSION_TITLE_FONT_SIZE));
+        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Dimensions.TITLE_FONT_SIZE));
 
         JLabel optionsLabel = new JLabel(TEXT_LABEL_OPTIONS);
         optionsLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, 14));
@@ -239,44 +283,31 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         infectedLabel = new JLabel(infectedCountText);
         recoveredLabel = new JLabel(recoveredCountText);
 
-        JPanel matrixPanel = new JPanel(new GridLayout(appData.getMatrix().length, appData.getMatrix().length));
-        matrixPanel.setBorder(
-                new CompoundBorder(
-                        BorderFactory.createEmptyBorder(0, 0, 0, 16),
-                        BorderFactory.createEmptyBorder()
-                )
-        );
+        JPanel matrixPanel = new JPanel(new GridLayout(appData.getMatrix().length + 1, appData.getMatrix().length + 1));
 
         buttonsPanel = new JPanel(new GridLayout(optionButtons.length, 1, 0, 8));
-        buttonsPanel.setBorder(
-                new CompoundBorder(
-                        BorderFactory.createEmptyBorder(0, 16, 0, 0),
-                        BorderFactory.createEmptyBorder()
-                )
-        );
 
         dataTextArea = new JTextArea(10, 10);
         dataTextArea.setLineWrap(true);
         dataTextArea.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, 12));
-        dataTextArea.setBorder(
-                new CompoundBorder(
-                        dataTextArea.getBorder(),
-                        BorderFactory.createEmptyBorder(8, 8, 8, 8)
-                )
-        );
+
         ((DefaultCaret) dataTextArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         JScrollPane dataScrollPane = new JScrollPane(
                 dataTextArea,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
         );
-        dataScrollPane.setBorder(new CompoundBorder(
-                BorderFactory.createEmptyBorder(16, 0, 0, 0),
-                BorderFactory.createEmptyBorder(0, 0, 0, 0)
-        ));
+        dataTextArea.setBorder(
+                new CompoundBorder(
+                        new EmptyBorder(0, 0, 0, 0),
+                        new EmptyBorder(4, 4, 4, 4)
+                )
+        );
 
         matrixButtons = MatrixHelper.populateMatrixPanel(appData, matrixPanel);
+        MatrixHelper.setMatrixButtonsToolTipTexts(appData, matrixButtons);
         Arrays.stream(optionButtons).forEach(button -> buttonsPanel.add(button));
+
         //
 
         // horizontal groups
@@ -289,9 +320,12 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
                                         .addComponent(recoveredLabel)
                                         .addComponent(matrixPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                                 )
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
                                         .addComponent(optionsLabel)
-                                        .addComponent(buttonsPanel)
+                                        .addGap(Dimensions.MIN_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE)
+                                        .addComponent(buttonsPanel, Dimensions.MIN_BUTTON_WIDTH, Dimensions.PREFERRED_BUTTON_WIDTH, Dimensions.PREFERRED_BUTTON_WIDTH)
+                                        .addGap(Dimensions.MIN_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE)
                                 )
                         )
                         .addComponent(dataScrollPane)
@@ -301,27 +335,37 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         groupLayout.setVerticalGroup(
                 groupLayout.createSequentialGroup()
                         .addComponent(windowLabel)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(infectedLabel)
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(optionsLabel)
                                 .addComponent(recoveredLabel)
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(matrixPanel)
-                                .addComponent(buttonsPanel)
+                                .addGroup(groupLayout.createSequentialGroup()
+                                        .addGap(Dimensions.MIN_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE)
+                                        .addComponent(buttonsPanel)
+                                        .addGap(Dimensions.MIN_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE, Dimensions.PREFERRED_GAP_SIZE)
+                                )
                         )
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(dataScrollPane)
         );
-
 
         setTitle(TITLE);
         pack();
         setVisible(true);
-        setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        // if matrix is large, then resizable is enabled
+        if (appData.getMatrix().length < 24)
+            setResizable(false);
     }
 
     /**
@@ -343,7 +387,9 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
         optionButtons[5].setEnabled(false);
     }
 
-    // add action listeners
+    /**
+     * Add action listeners for option buttons
+     */
     private void setListeners() {
 
         optionButtons[0].addActionListener(event -> {
@@ -385,6 +431,8 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
         optionButtons[5].addActionListener(event -> {
 
+            // deserialization
+
             deserialize();
 
             optionButtons[1].setEnabled(true);
@@ -401,6 +449,9 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
             dispose();
             System.exit(0);
         });
+
+        // set mouse and action listener for matrix buttons
+        MatrixHelper.setMatrixButtonsListeners(appData, matrixButtons);
     }
 
 
@@ -469,7 +520,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
                         AmbulanceMovementThread ambulanceMovementThread =
                                 new AmbulanceMovementThread(appData, ambulance, this);
                         ambulanceThreads.put(ambulance.getId(), ambulanceMovementThread);
-                        ambulanceMovementThread.setAmbulanceMovementListener(id -> ambulanceThreads.remove(id));
+                        ambulanceMovementThread.setMovementListener(id -> ambulanceThreads.remove(id));
                         ambulanceMovementThread.start();
                     }
                 });
@@ -573,6 +624,9 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
         new Thread(() -> {
 
+            // save data using separate thread
+            // in this way blocking of UI is avoided
+
             try {
 
                 if (hospitalThread != null && hospitalThread.isAlive())
@@ -594,17 +648,6 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
                     }
                 }
 
-                for (Iterator<UrgentMovementThread> i = urgentThreads.values().iterator(); i.hasNext();) {
-
-                    UrgentMovementThread urgentMovementThread = i.next();
-                    urgentMovementThread.stopRunning();
-
-                    try {
-                        urgentMovementThread.join();
-                    } catch (InterruptedException ex) {
-                        LOGGER.warning(ex.fillInStackTrace().toString());
-                    }
-                }
 
                 movementThread.stopRunning();
                 try {
@@ -650,6 +693,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
             inputStream.close();
 
+            // restore every thread
             runThreadsAgain();
 
         } catch (IOException | ClassNotFoundException ex) {
@@ -676,7 +720,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
             AmbulanceMovementThread ambulanceMovementThread =
                     new AmbulanceMovementThread(appData, ambulance, this);
             ambulanceThreads.put(data.getAmbulanceId(), ambulanceMovementThread);
-            ambulanceMovementThread.setAmbulanceMovementListener(id -> ambulanceThreads.remove(id));
+            ambulanceMovementThread.setMovementListener(id -> ambulanceThreads.remove(id));
             ambulanceMovementThread.start();
         }
 
@@ -693,7 +737,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
     }
 
     /**
-     *
+     * For each person in same house as person passed as argument
      */
     private void notifyHousehold(Person person) {
 
@@ -736,7 +780,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
 
     /**
-     *
+     * Checks if person is in hospital
      */
     private boolean isInHospital(Person person) {
 
@@ -748,14 +792,14 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
     }
 
     /**
-     *
+     * Checks if person is in ambulance (currently transporting to hospital)
      */
     private boolean isInAmbulance(Person person) {
         return appData.getAmbulances().stream().anyMatch(ambulance -> ambulance.getPersonId() == person.getId());
     }
 
     /**
-     *
+     * Check if person is in home
      */
     private boolean isInHome(Person person) {
 
@@ -766,7 +810,7 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
     }
 
     /**
-     *
+     * Save simulation data to file when simulation is ended
      */
     private void saveData() {
 
@@ -783,28 +827,12 @@ public class CoronaMainWindow extends JFrame implements TemperatureUpdateListene
 
             long time = endTime - startTime;
 
-            long seconds = time / 1000 % 60;
-            long minutes = time / (1000 * 60) % 60;
-            long hours = time / (1000 * 60 * 60);
-
-            writer.write(hours + ", " + minutes + ", " + seconds + "\n");
-
-            HashMap<String, Integer> data = appData.getData();
-
-            writer.write(data.get(Constants.KEY_NUM_OF_CHILDREN) + "\n");
-            writer.write(data.get(Constants.KEY_NUM_OF_ADULTS) + "\n");
-            writer.write(data.get(Constants.KEY_NUM_OF_OLD) + "\n");
-            writer.write(data.get(Constants.KEY_NUM_OF_HOMES) + "\n");
-            writer.write(data.get(Constants.KEY_NUM_OF_CHECKPOINTS) + "\n");
-            writer.write(appData.getHospitals().size() + "\n");
-            writer.write(data.get(Constants.KEY_NUM_OF_AMBULANCES) + "\n");
-
-            writer.write("Stats");
+            Utils.writeDataToTxtFile(writer, appData, time);
 
             writer.flush();
             writer.close();
 
-        } catch (IOException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             LOGGER.warning(ex.fillInStackTrace().toString());
         }
     }

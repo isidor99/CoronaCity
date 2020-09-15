@@ -8,6 +8,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/*
+ * This class is JPanel for JTabbedPane in StatisticsWindow.java class
+ * Contains two graph components (GraphView.java class) arranged horizontally
+ * Graphs contains data for male and female respectively
+ */
 public class GenderGraphTab extends JPanel {
 
     private static final String TEXT_LABEL_MALE = "Muskarci";
@@ -21,6 +26,9 @@ public class GenderGraphTab extends JPanel {
     // private
     //
 
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents(ArrayList<Long> xValues, ArrayList<Long> yValuesMale, ArrayList<Long> yValuesFemale, boolean infected) {
 
         // using GroupLayout

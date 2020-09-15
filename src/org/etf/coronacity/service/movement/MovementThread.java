@@ -13,7 +13,7 @@ import org.etf.coronacity.model.person.Child;
 import org.etf.coronacity.model.person.Old;
 import org.etf.coronacity.model.person.Person;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -70,11 +70,8 @@ public class MovementThread extends Thread {
 
                 if (person.canMove() && checkMovement(person) && checkBuilding(person) && checkDistance(person)) {
 
-                    int prevX = person.getLocationData().getPositionX();
-                    int prevY = person.getLocationData().getPositionY();
-
                     move(person);
-                    movementListener.onMovementPerformed(person.toString());
+                    movementListener.onMovementPerformed(person.toString(), false);
 
                     try {
                         Thread.sleep(Constants.PERSON_THREAD_SLEEP_TIME);
@@ -84,22 +81,26 @@ public class MovementThread extends Thread {
 
                 } else if (person.canMove()) {
 
-                    LocationData.Direction[] personDirections = { person.getLocationData().getDirection() };
+                    ArrayList<LocationData.Direction> personDirections = new ArrayList<>();
+                    personDirections.add(person.getLocationData().getDirection());
+
+                    // LocationData.Direction[] personDirections = { person.getLocationData().getDirection() };
 
                     // change direction
                     for (LocationData.Direction dir : LocationData.Direction.values()) {
 
-                        if (Arrays.stream(personDirections).noneMatch(direction -> direction == dir)) {
+                        if (!personDirections.contains(dir)/*personDirections.stream().noneMatch(direction -> direction == dir)*/) {
 
                             person.getLocationData().setDirection(dir);
+                            personDirections.add(dir);
 
-                            if (checkMovement(person) && checkDistance(person)) {
+                            if (checkMovement(person) && checkBuilding(person) && checkDistance(person)) {
 
                                 int prevX = person.getLocationData().getPositionX();
                                 int prevY = person.getLocationData().getPositionY();
 
                                 move(person);
-                                movementListener.onMovementPerformed(person.toString());
+                                movementListener.onMovementPerformed(person.toString(), false);
 
                                 try {
                                     Thread.sleep(Constants.PERSON_THREAD_SLEEP_TIME);
@@ -138,7 +139,7 @@ public class MovementThread extends Thread {
                             if (direction != null)
                                 person.getLocationData().setDirection(direction);
 
-                            movementListener.onMovementPerformed("URGENT: " + person.toString() );
+                            movementListener.onMovementPerformed("Hitno ide kući " + person.toString(), true);
 
                         } else
                             appData.getUrgentMovementData().remove(person.getId());
@@ -206,26 +207,26 @@ public class MovementThread extends Thread {
             case RIGHT:
                 fromX = posX - 2;
                 toX = posX + 2;
-                fromY = posY + 1;
+                fromY = posY - 1;
                 toY = posY + 3;
                 break;
 
             case RIGHT_BOTTOM:
-                fromX = posX + 1;
+                fromX = posX - 1;
                 toX = posX + 3;
                 fromY = posY - 1;
                 toY = posY + 3;
                 break;
 
             case BOTTOM:
-                fromX = posX + 1;
+                fromX = posX - 1;
                 toX = posX + 3;
                 fromY = posY - 2;
                 toY = posY + 2;
                 break;
 
             case LEFT_BOTTOM:
-                fromX = posX + 1;
+                fromX = posX - 1;
                 toX = posX + 3;
                 fromY = posY - 3;
                 toY = posY + 1;
@@ -235,26 +236,26 @@ public class MovementThread extends Thread {
                 fromX = posX - 2;
                 toX = posX + 2;
                 fromY = posY - 3;
-                toY = posY - 2;
+                toY = posY + 1;
                 break;
 
             case LEFT_TOP:
                 fromX = posX - 3;
-                toX = posX - 1;
+                toX = posX + 1;
                 fromY = posY - 3;
                 toY = posY + 1;
                 break;
 
             case TOP:
                 fromX = posX - 3;
-                toX = posX - 1;
+                toX = posX + 1;
                 fromY = posY - 2;
                 toY = posY + 2;
                 break;
 
             case RIGHT_TOP:
                 fromX = posX - 3;
-                toX = posX - 1;
+                toX = posX + 1;
                 fromY = posY - 1;
                 toY = posY + 3;
                 break;
@@ -268,7 +269,6 @@ public class MovementThread extends Thread {
             for (int j = fromY; j <= toY; j++)
                 if (isPersonNear(i, j, person))
                     return false;
-
 
         return true;
     }
@@ -375,26 +375,50 @@ public class MovementThread extends Thread {
      */
     private boolean isPersonNear(int i, int j, Person person) {
 
+        int length = appData.getMatrix().length;
+
+        if (i >= 0 && j >= 0 && i < length && j < length && appData.getMatrix()[i][j] != null && appData.getMatrix()[i][j] instanceof Home)
+            return false;
+
+        /*for (Person p : appData.getPersons().values()) {
+
+            if (p.getId() == person.getId())
+                continue;
+
+            if (person instanceof Child) {
+                if (p.getLocationData().getPositionX() == i && p.getLocationData().getPositionY() == j && p instanceof Old)
+                    return true;
+            } else if (person instanceof Adult) {
+                if (p.getLocationData().getPositionX() == i && p.getLocationData().getPositionY() == j && !(p instanceof Child))
+                    return true;
+            } else if (person instanceof Old) {
+                if (p.getLocationData().getPositionX() == i && p.getLocationData().getPositionY() == j)
+                    return true;
+            }
+        }
+
+        return false;*/
+
         return appData.getPersons().values().stream()
                 .anyMatch(p -> {
 
-                    if (person instanceof Child)
-                        return p.getLocationData().getPositionX() == i &&
-                                p.getLocationData().getPositionY() == j &&
-                                p.getHomeId() != person.getHomeId() &&
-                                p instanceof Old;
+                    if (p.getId() != person.getId()) {
+                        if (person instanceof Child)
+                            return p.getLocationData().getPositionX() == i &&
+                                    p.getLocationData().getPositionY() == j &&
+                                    p instanceof Old;
 
-                    else if (person instanceof Adult)
-                        return p.getLocationData().getPositionX() == i &&
-                                p.getLocationData().getPositionY() == j &&
-                                p.getHomeId() != person.getHomeId() &&
-                                !(p instanceof Child);
+                        else if (person instanceof Adult)
+                            return p.getLocationData().getPositionX() == i &&
+                                    p.getLocationData().getPositionY() == j &&
+                                    !(p instanceof Child);
 
-                    else
-                        return p.getLocationData().getPositionX() == i &&
-                                p.getLocationData().getPositionY() == j &&
-                                p.getHomeId() != person.getHomeId();
+                        else
+                            return p.getLocationData().getPositionX() == i &&
+                                    p.getLocationData().getPositionY() == j;
+                    }
 
+                    return false;
                 });
     }
 }

@@ -2,6 +2,7 @@ package org.etf.coronacity.gui.window;
 
 import org.etf.coronacity.gui.component.HospitalView;
 import org.etf.coronacity.helper.Constants;
+import org.etf.coronacity.helper.Dimensions;
 import org.etf.coronacity.model.building.Hospital;
 
 import javax.swing.*;
@@ -9,6 +10,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+/*
+    Show hospital data
+        - each hospital name
+        - each hospital capacity (same for each)
+        - number of infected in each hospital
+ */
 public class HospitalsWindow extends JFrame {
 
     private ArrayList<Hospital> hospitals;
@@ -19,6 +26,7 @@ public class HospitalsWindow extends JFrame {
 
     private Consumer<Hospital> hospitalCreateListener;
 
+    private static final String TITLE = "Bolnice";
     private static final String TEXT_LABEL_WINDOW = "Pregled stanja bolnica";
     private static final String TEXT_LABEL_ADD_HOSPITAL = "Kreiraj novu bolnicu";
 
@@ -39,6 +47,10 @@ public class HospitalsWindow extends JFrame {
     //
     // private
     //
+
+    /**
+     * Set layout and place components on the screen
+     */
     private void initComponents() {
 
         // using GroupLayout
@@ -54,7 +66,7 @@ public class HospitalsWindow extends JFrame {
         //
 
         JLabel windowLabel = new JLabel(TEXT_LABEL_WINDOW);
-        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Constants.DIMENSION_TITLE_FONT_SIZE));
+        windowLabel.setFont(new Font(Constants.DEFAULT_FONT, Font.BOLD, Dimensions.TITLE_FONT_SIZE));
 
         hospitalsPanel = new JPanel();
         addHospitalButton = new JButton(TEXT_LABEL_ADD_HOSPITAL);
@@ -82,18 +94,25 @@ public class HospitalsWindow extends JFrame {
         //
 
         checkHospitals();
+        setTitle(TITLE);
         pack();
         setVisible(true);
         setResizable(false);
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Create hospital view for each hospital
+     */
     private void createComponentsForHospital() {
 
         hospitalsPanel.setLayout(new GridLayout(1 + hospitals.size() / 4, 4));
         hospitals.forEach(hospital -> hospitalsPanel.add(new HospitalView(hospital)));
     }
 
+    /**
+     * Add action listeners for option buttons
+     */
     private void setListeners() {
 
         addHospitalButton.addActionListener(event -> {
